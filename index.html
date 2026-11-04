@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi PPKn - Ular Tangga Norma Dalam Kehidupanku</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas2Image / HTML2Canvas library helper for PNG Certificate Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                primary: '#3C096C',
+                                tosca: '#2EC4B6',
+                                offwhite: '#F8F9FA',
+                                accentYellow: '#FFB703',
+                                accentPink: '#FB8500'
+                            },
+                            fontFamily: {
+                                sans: ['Poppins', 'sans-serif'],
+                            }
+                        }
+                    }
+                };
+            }
+        });
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #3C096C; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #2EC4B6; border-radius: 4px; }
+        
+        /* Dynamic Background Image styling with overlay fallback */
+        .bg-custom-hero {
+            background-image: linear-gradient(rgba(36, 3, 66, 0.85), rgba(18, 1, 36, 0.9)), url('https://lh3.googleusercontent.com/d/1Z1iy5ILevDPbM261kK21iAAbw1Y4-LrY');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 3D Dice Animation */
+        .dice-container { perspective: 600px; }
+        .dice {
+            width: 65px; height: 65px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+        }
+        .dice.rolling {
+            animation: rollDice 0.8s infinite linear;
+        }
+        @keyframes rollDice {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            50% { transform: rotateX(360deg) rotateY(180deg) rotateZ(180deg); }
+            100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        .dice-face {
+            position: absolute; width: 100%; height: 100%;
+            background: #ffffff; border: 3px solid #3C096C;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: bold; color: #3C096C;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Drag and Drop Interactive styling */
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+        .draggable-item:active { cursor: grabbing; }
+        .drop-zone.hovered { border-color: #2EC4B6; background-color: rgba(46, 196, 182, 0.2); }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-offwhite bg-primary">
+
+    <!-- Background Audio Element -->
+    <audio id="bgMusic" loop>
+        <source src="https://docs.google.com/uc?export=download&id=1tYzO7MlCvKrMTW9Vq06Fs1-uXmIzfnz3" type="audio/mp3">
+    </audio>
+
+    <!-- Top Navigation Header -->
+    <header class="bg-[#240342] border-b border-[#2EC4B6]/30 px-3 py-1.5 flex justify-between items-center shrink-0 z-50">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="w-9 h-9 rounded-full bg-tosca flex items-center justify-center text-primary font-bold text-lg shadow-lg">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <div>
+                <h1 class="text-sm sm:text-base font-bold text-tosca leading-tight">MPI INTERAKTIF PPKN KELAS 5</h1>
+                <p class="text-[10px] sm:text-xs text-offwhite/70">Materi: Norma Dalam Kehidupanku</p>
+            </div>
+        </div>
+
+        <!-- Header Controls -->
+        <div class="flex items-center space-x-1.5 sm:space-x-3">
+            <!-- Test Microphone Small Button -->
+            <button onclick="testMicrophone()" class="bg-tosca/20 hover:bg-tosca/30 text-tosca border border-tosca/40 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shadow">
+                <i class="fa-solid fa-microphone"></i>
+                <span class="hidden sm:inline">Test Mic</span>
+            </button>
+
+            <!-- Audio & Volume Control -->
+            <div class="flex items-center bg-black/40 px-2.5 py-1 rounded-lg border border-white/10 space-x-2">
+                <button onclick="toggleAudio()" id="audioToggleBtn" class="text-tosca hover:text-white transition" title="Mute/Unmute Musik">
+                    <i class="fa-solid fa-volume-high text-xs sm:text-sm"></i>
+                </button>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" onchange="adjustVolume(this.value)" class="w-12 sm:w-16 accent-tosca cursor-pointer h-1">
+            </div>
+
+            <!-- Home Button -->
+            <button onclick="switchScreen('home')" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1 rounded-lg text-xs flex items-center space-x-1 shadow transition">
+                <i class="fa-solid fa-house"></i>
+                <span class="hidden sm:inline">Menu Utama</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="mainContainer" class="flex-1 relative overflow-hidden flex flex-col">
+        
+        <!-- ================= 1. HOME SCREEN ================= -->
+        <section id="screen-home" class="absolute inset-0 flex flex-col items-center justify-center p-3 sm:p-5 overflow-hidden bg-custom-hero">
+            <div class="max-w-4xl w-full bg-black/60 backdrop-blur-md border border-tosca/40 rounded-3xl p-4 sm:p-6 shadow-2xl text-center flex flex-col items-center max-h-full justify-between">
+                
+                <div>
+                    <span class="bg-tosca/20 text-tosca border border-tosca/30 text-[10px] sm:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider mb-2 inline-block">
+                        Media Pembelajaran Interaktif (MPI) SD
+                    </span>
+                    <h2 class="text-xl sm:3xl font-extrabold text-white mb-1 tracking-wide">
+                        GAME INTERAKTIF ULAR – TANGGA
+                    </h2>
+                    <h3 class="text-xs sm:text-base font-semibold text-tosca mb-3">
+                        Materi: Norma Dalam Kehidupanku (PPKn SD Kelas V)
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full text-left my-2 text-xs">
+                    <!-- Instructions -->
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+                        <h4 class="font-bold text-tosca mb-1.5 flex items-center text-xs sm:text-sm"><i class="fa-solid fa-gamepad mr-2"></i>Instruksi Permainan</h4>
+                        <ul class="list-disc list-inside space-y-1 text-offwhite/80 text-[11px] sm:text-xs">
+                            <li>Masukkan jumlah pemain (1–5) & pilih foto karaktermu.</li>
+                            <li>Putar dadu 3D bergantian untuk melangkah di 20 kotak permainan.</li>
+                            <li>Jawab tantangan (PG, B/S, Isian, Menjodohkan, Drag & Drop).</li>
+                            <li>Jika tidak berhasil menjawab, kembali ke kotak sebelumnya!</li>
+                        </ul>
+                    </div>
+                    <!-- Objectives & Developer Profile -->
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-accentYellow mb-1.5 flex items-center text-xs sm:text-sm"><i class="fa-solid fa-bullseye mr-2"></i>Tujuan Pembelajaran</h4>
+                            <p class="text-offwhite/80 text-[11px] sm:text-xs mb-2">Murid dapat memahami, mengidentifikasi, dan menerapkan jenis-jenis norma (Agama, Kesusilaan, Kesopanan, dan Hukum) dalam kehidupan sehari-hari secara mandiri maupun kolaboratif.</p>
+                        </div>
+                        <div class="border-t border-white/10 pt-2 text-[10px] sm:text-xs text-offwhite/70">
+                            <span class="font-bold text-tosca">Profil Pengembang:</span> Leni Rianti, S.Pd (SDN 1 CURUGBADAK)<br>
+                            <span class="font-bold text-tosca">Guru Kelas:</span> Leni Rianti, S.Pd.,Gr
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Navigation Buttons -->
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-3 w-full max-w-2xl mt-1">
+                    <button onclick="switchScreen('material')" class="bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-bold px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm flex items-center space-x-1.5 transition transform hover:scale-105">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Materi & Suara Narasi</span>
+                    </button>
+                    <button onclick="switchScreen('setup')" class="bg-gradient-to-r from-accentYellow to-[#e5a600] hover:opacity-90 text-primary font-bold px-5 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm flex items-center space-x-1.5 transition transform hover:scale-105">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Masuk Game Ular Tangga</span>
+                    </button>
+                    <button onclick="switchScreen('scores')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-3 py-2.5 rounded-xl shadow text-xs flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-table"></i>
+                        <span>Hasil Nilai (Spreadsheet)</span>
+                    </button>
+                    <button onclick="switchScreen('reflection')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-3 py-2.5 rounded-xl shadow text-xs flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <span>Refleksi</span>
+                    </button>
+                    <button onclick="switchScreen('certificate')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-3 py-2.5 rounded-xl shadow text-xs flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Download Sertifikat</span>
+                    </button>
+                </div>
+
+                <!-- Footer Profile -->
+                <footer class="mt-3 text-[10px] sm:text-xs text-offwhite/60 text-center">
+                    Dibuat dengan ❤️ oleh <span class="text-tosca font-bold">Leni Rianti, S.Pd</span> | SDN 1 CURUGBADAK
+                </footer>
+            </div>
+        </section>
+
+        <!-- ================= 2. MATERIAL SCREEN ================= -->
+        <section id="screen-material" class="absolute inset-0 hidden flex flex-col p-3 sm:p-5 overflow-hidden bg-primary">
+            <div class="max-w-4xl w-full mx-auto bg-black/40 backdrop-blur-md border border-tosca/30 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col flex-1 my-auto overflow-hidden">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-3 shrink-0">
+                    <h2 class="text-base sm:text-xl font-bold text-tosca flex items-center"><i class="fa-solid fa-book-open mr-2"></i>Materi: Norma Dalam Kehidupanku</h2>
+                    
+                    <!-- Text to Speech Inclusion Voice Selector -->
+                    <div class="flex items-center space-x-2">
+                        <select id="voiceCharacter" class="bg-black/40 border border-tosca/40 text-[11px] sm:text-xs rounded-lg px-2 py-1 text-offwhite focus:outline-none">
+                            <option value="Zephyr">Suara 👩 Zephyr (Perempuan Persuasif)</option>
+                            <option value="Aoede">Suara 👩 Aoede (Perempuan Lembut)</option>
+                            <option value="Orus">Suara 👨 Orus (Pria Kasual)</option>
+                            <option value="Charon">Suara 👨 Charon (Pria Natural)</option>
+                        </select>
+                        <button onclick="readMaterial()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1 rounded-lg text-xs flex items-center space-x-1">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span class="hidden sm:inline">Bacakan Materi (Inklusi)</span>
+                        </button>
+                        <button onclick="toggleMaterialShow()" id="btnMaterialToggle" class="bg-white/10 hover:bg-white/20 border border-white/20 text-offwhite px-2 py-1 rounded-lg text-xs">
+                            Hide Materi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Material Box -->
+                <div id="materialContentBox" class="bg-black/30 p-4 rounded-2xl border border-white/10 text-xs sm:text-sm space-y-3 overflow-y-auto flex-1 text-offwhite/90">
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">A. Pengertian Norma</h3>
+                    <p>Norma adalah aturan, kaidah, atau petunjuk hidup yang berlaku dalam masyarakat yang mengatur tingkah laku manusia agar tercipta ketertiban, keharmonisan, dan kedamaian bersama.</p>
+                    
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">B. Empat Jenis Norma Utama</h3>
+                    <ul class="list-disc list-inside space-y-1.5 pl-2">
+                        <li><strong>1. Norma Agama:</strong> Aturan yang bersumber dari wahyu Tuhan Yang Maha Esa. Sanksinya berupa dosa dan pahala di akhirat. (Contoh: Beribadah tepat waktu, jujur).</li>
+                        <li><strong>2. Norma Kesusilaan:</strong> Aturan yang bersumber dari hati nurani dan bisikan jiwa manusia. Sanksinya berupa rasa penyesalan dan malu. (Contoh: Berkata jujur, tidak mencuri).</li>
+                        <li><strong>3. Norma Kesopanan:</strong> Aturan tata krama atau adat istiadat yang disepakati oleh masyarakat setempat. Sanksinya berupa celaan, cemoohan, atau dikucilkan. (Contoh: Mengucapkan salam, mencium tangan orang tua).</li>
+                        <li><strong>4. Norma Hukum:</strong> Aturan resmi yang dibuat oleh lembaga negara/pemerintah dan bersifat mengikat serta memaksa. Sanksinya tegas berupa denda atau penjara. (Contoh: Mematuhi rambu lalu lintas, membayar pajak).</li>
+                    </ul>
+
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">C. Manfaat Mematuhi Norma</h3>
+                    <p>Mematuhi norma membuat kehidupan sekolah, rumah, dan masyarakat menjadi aman, tertib, serta menghindarkan diri dari konflik dan sanksi sosial maupun hukum.</p>
+                </div>
+                </div>
+
+                <!-- Scrollable Material Box -->
+                <div id="materialContentBox" class="bg-black/30 p-4 rounded-2xl border border-white/10 text-xs sm:text-sm space-y-3 overflow-y-auto flex-1 text-offwhite/90">
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">A. Pengertian Pecahan Campuran</h3>
+                    <p>Pecahan campuran adalah pecahan yang terdiri dari <strong>bilangan bulat</strong> dan <strong>pecahan biasa</strong>. Contohnya adalah 2 ½, di mana 2 adalah bilangan bulat dan ½ adalah pecahan biasa.</p>
+                    
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">B. Mengubah Pecahan Biasa ke Pecahan Campuran</h3>
+                    <p>Pecahan biasa dapat diubah menjadi pecahan campuran jika <em>pembilang lebih besar dari penyebutnya</em>.<br>
+                    <strong>Cara:</strong> Bagi pembilang dengan penyebut. Hasil baginya menjadi bilangan bulat, sisa pembagian menjadi pembilang baru, dan penyebutnya tetap.<br>
+                    <em>Contoh:</em> 7/3 ➔ 7 dibagi 3 mendapatkan 2 sisa 1, sehingga ditulis <strong>2 ⅓</strong>.</p>
+
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">C. Mengubah Pecahan Campuran ke Pecahan Biasa</h3>
+                    <p><strong>Rumus:</strong> (Bilangan Bulat × Penyebut + Pembilang) / Penyebut.<br>
+                    <em>Contoh:</em> 3 ⅖ ➔ (3 × 5 + 2) / 5 = <strong>17/5</strong>.</p>
+
+                    <h3 class="font-bold text-accentYellow text-sm sm:text-base">D. Penjumlahan & Pengurangan Pecahan Campuran</h3>
+                    <p>Untuk menjumlahkan atau mengurangkan pecahan campuran, kita bisa mengelompokkan bilangan bulat dengan bilangan bulat, serta pecahan dengan pecahan setelah menyamakan penyebutnya.</p>
+                </div>
+
+                <div class="flex justify-between items-center mt-3 pt-2 border-t border-white/10 shrink-0">
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Menu Utama
+                    </button>
+                    <button onclick="switchScreen('setup')" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-5 py-2 rounded-xl text-xs flex items-center space-x-1 shadow">
+                        <span>Lanjut ke Pemilihan Pemain</span> <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. SETUP SCREEN ================= -->
+        <section id="screen-setup" class="absolute inset-0 hidden flex flex-col p-3 sm:p-5 overflow-y-auto bg-primary">
+            <div class="max-w-xl w-full mx-auto bg-black/40 backdrop-blur-md border border-tosca/30 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col my-auto">
+                <h2 class="text-base sm:text-xl font-bold text-tosca text-center mb-1"><i class="fa-solid fa-users-gear mr-2"></i>Pengaturan Pemain</h2>
+                <p class="text-xs text-offwhite/70 text-center mb-4">Pilih jumlah pemain/regu dan kustomisasi profil pemain.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-tosca mb-1">Jumlah Pemain / Regu (1 - 5):</label>
+                        <select id="playerCountSelect" onchange="renderPlayerInputs()" class="w-full bg-black/40 border border-tosca/40 rounded-xl px-3 py-2 text-xs text-offwhite focus:outline-none">
+                            <option value="1">1 Pemain (Mandiri)</option>
+                            <option value="2" selected>2 Pemain / Regu</option>
+                            <option value="3">3 Pemain / Regu</option>
+                            <option value="4">4 Pemain / Regu</option>
+                            <option value="5">5 Pemain / Regu</option>
+                        </select>
+                    </div>
+
+                    <div id="playerInputsContainer" class="space-y-2">
+                        <!-- Rendered by renderPlayerInputs() -->
+                    </div>
+
+                    <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                        <button onclick="switchScreen('material')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                            Kembali
+                        </button>
+                        <button onclick="startTheGame()" class="bg-gradient-to-r from-accentYellow to-[#e5a600] hover:opacity-90 text-primary font-bold px-6 py-2 rounded-xl text-xs flex items-center space-x-1 shadow transform hover:scale-105">
+                            <span>Mulai Permainan</span> <i class="fa-solid fa-play ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. GAME BOARD SCREEN ================= -->
+        <section id="screen-game" class="absolute inset-0 hidden flex flex-col p-2 sm:p-4 overflow-hidden bg-primary">
+            <div class="max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-3 h-full overflow-hidden">
+                
+                <!-- Left Panel: 20 Cells Snake & Ladder Board -->
+                <div class="flex-1 bg-black/40 border border-tosca/30 rounded-2xl p-3 flex flex-col justify-between overflow-hidden shadow-2xl">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-xs sm:text-sm font-bold text-tosca flex items-center"><i class="fa-solid fa-chess-board mr-1.5"></i>Papan Ular Tangga (20 Kotak)</h3>
+                        <span class="text-[10px] text-offwhite/60">Garis Finish: Kotak 20</span>
+                    </div>
+
+                    <!-- 4x5 Grid Board Container (20 Kotak Real) -->
+                    <div id="gameBoardGrid" class="grid grid-cols-5 grid-rows-4 gap-1.5 flex-1 w-full max-h-[75vh]">
+                        <!-- Dynamically populated 20 board cells -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Game Controls & Standings -->
+                <div class="w-full md:w-72 bg-black/40 border border-tosca/30 rounded-2xl p-3 flex flex-col justify-between shadow-2xl shrink-0">
+                    
+                    <div>
+                        <!-- Active Player Display -->
+                        <div class="bg-tosca/20 border border-tosca/40 rounded-xl p-2.5 text-center mb-3">
+                            <span class="text-[10px] text-tosca uppercase font-bold tracking-wider">Giliran Berjalan</span>
+                            <h4 id="currentTurnName" class="text-sm font-extrabold text-white">Pemain 1</h4>
+                        </div>
+
+                        <!-- 3D Dice Display Box -->
+                        <div class="bg-black/30 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center mb-3">
+                            <div class="dice-container mb-2">
+                                <div id="dice3D" class="dice">
+                                    <div class="dice-face" id="diceFaceValue">1</div>
+                                </div>
+                            </div>
+                            <button id="rollDiceBtn" onclick="rollDiceAction()" class="bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-extrabold px-5 py-2 rounded-xl text-xs shadow transform hover:scale-105 active:scale-95 transition">
+                                <i class="fa-solid fa-dice mr-1"></i> Putar Dadu 3D
+                            </button>
+                        </div>
+
+                        <!-- Live Score Standings -->
+                        <div class="space-y-1.5">
+                            <h4 class="text-xs font-bold text-tosca mb-1"><i class="fa-solid fa-trophy mr-1"></i>Klasemen Pemain</h4>
+                            <div id="playerStandingsList" class="space-y-1 text-xs max-h-36 overflow-y-auto">
+                                <!-- Dynamically updated standings -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-white/10 flex justify-between gap-2">
+                        <button onclick="switchScreen('material')" class="bg-white/10 hover:bg-white/20 text-offwhite text-[10px] px-2.5 py-1.5 rounded-lg flex-1">
+                            <i class="fa-solid fa-book mr-1"></i>Materi
+                        </button>
+                        <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite text-[10px] px-2.5 py-1.5 rounded-lg flex-1">
+                            <i class="fa-solid fa-house mr-1"></i>Menu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 5. SCORES & SPREADSHEET SCREEN ================= -->
+        <section id="screen-scores" class="absolute inset-0 hidden flex flex-col p-3 sm:p-5 overflow-y-auto bg-primary">
+            <div class="max-w-4xl w-full mx-auto bg-black/40 backdrop-blur-md border border-tosca/30 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col my-auto">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-base sm:text-xl font-bold text-tosca flex items-center"><i class="fa-solid fa-table-list mr-2"></i>Hasil Nilai Belajar (Spreadsheet Online)</h2>
+                    <button onclick="exportToCSV()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1.5 rounded-xl text-xs flex items-center space-x-1 shadow">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Download CSV / Spreadsheet</span>
+                    </button>
+                </div>
+
+                <div class="bg-black/30 rounded-2xl border border-white/10 overflow-hidden mb-4">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-tosca/20 text-tosca border-b border-tosca/30">
+                                <th class="p-2.5">No</th>
+                                <th class="p-2.5">Nama Murid / Regu</th>
+                                <th class="p-2.5">Kelas</th>
+                                <th class="p-2.5">Nilai Akhir</th>
+                                <th class="p-2.5">Status Papan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoresTableBody" class="divide-y divide-white/10 text-offwhite/90">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        Kembali ke Menu Utama
+                    </button>
+                    <button onclick="switchScreen('certificate')" class="bg-accentYellow hover:opacity-90 text-primary font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1 shadow">
+                        <i class="fa-solid fa-award mr-1"></i>
+                        <span>Lihat Sertifikat Pemenang</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 6. REFLECTION SCREEN ================= -->
+        <section id="screen-reflection" class="absolute inset-0 hidden flex flex-col p-3 sm:p-5 overflow-y-auto bg-primary">
+            <div class="max-w-2xl w-full mx-auto bg-black/40 backdrop-blur-md border border-tosca/30 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col my-auto">
+                <h2 class="text-base sm:text-xl font-bold text-tosca text-center mb-1"><i class="fa-solid fa-heart-pulse mr-2"></i>Refleksi Pembelajaran</h2>
+                <p class="text-xs text-offwhite/70 text-center mb-4">Bagaimana perasaan dan pemahamanmu setelah belajar materi Norma Dalam Kehidupanku?</p>
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-tosca mb-1">Nama Pemain / Murid:</label>
+                        <input type="text" id="refName" placeholder="Masukkan nama..." class="w-full bg-black/40 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-tosca mb-1">Bagaimana Perasaanmu Saat Bermain Game Ini?</label>
+                        <div class="flex gap-2">
+                            <label class="flex-1 bg-black/30 border border-white/10 p-2 rounded-xl flex items-center justify-center space-x-1 cursor-pointer hover:bg-black/50">
+                                <input type="radio" name="refMood" value="Sangat Senang" checked class="accent-tosca">
+                                <span>😃 Sangat Senang</span>
+                            </label>
+                            <label class="flex-1 bg-black/30 border border-white/10 p-2 rounded-xl flex items-center justify-center space-x-1 cursor-pointer hover:bg-black/50">
+                                <input type="radio" name="refMood" value="Biasa Saja" class="accent-tosca">
+                                <span>😐 Biasa Saja</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-tosca mb-1">Apa norma yang paling penting kamu terapkan di sekolah?</label>
+                        <textarea id="refText" rows="3" placeholder="Tuliskan pendapatmu..." class="w-full bg-black/40 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                            Kembali
+                        </button>
+                        <button onclick="submitReflection()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-6 py-2 rounded-xl text-xs shadow">
+                            Kirim Refleksi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 7. CERTIFICATE SCREEN ================= -->
+        <section id="screen-certificate" class="absolute inset-0 hidden flex flex-col p-3 sm:p-5 overflow-y-auto bg-primary">
+            <div class="max-w-3xl w-full mx-auto bg-black/40 backdrop-blur-md border border-tosca/30 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col my-auto">
+                <h2 class="text-base sm:text-xl font-bold text-tosca text-center mb-1"><i class="fa-solid fa-award mr-2"></i>Sertifikat Hasil Belajar</h2>
+                <p class="text-xs text-offwhite/70 text-center mb-3">Penghargaan Prestasi Belajar PPKn - Norma Dalam Kehidupanku</p>
+
+                <!-- Modern A4 Landscape Certificate Container -->
+                <div id="certificateCard" class="bg-gradient-to-br from-[#1b0232] via-[#3C096C] to-[#0f011d] border-4 border-tosca rounded-2xl p-5 sm:p-6 text-center shadow-2xl relative overflow-hidden flex flex-col justify-between aspect-[1.414/1] w-full max-h-[380px] text-offwhite my-auto">
+                    <!-- Certificate Header Pattern -->
+                    <div class="flex justify-between items-center border-b border-tosca/40 pb-2">
+                        <div class="text-left">
+                            <span class="text-[9px] sm:text-[11px] font-bold tracking-widest text-tosca uppercase">MEDIA PEMBELAJARAN INTERAKTIF (MPI)</span>
+                            <h4 class="text-xs sm:text-sm font-extrabold text-white">SDN 1 CURUGBADAK</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-tosca/20 border border-tosca flex items-center justify-center text-tosca text-xl">
+                            <i class="fa-solid fa-certificate"></i>
+                        </div>
+                    </div>
+
+                    <!-- Main Certificate Text -->
+                    <div class="my-2">
+                        <h3 class="text-lg sm:text-2xl font-extrabold text-white tracking-wider uppercase mb-1">SERTIFIKAT PENGHARGAAN</h3>
+                        <p class="text-[11px] sm:text-xs text-offwhite/80">Diberikan sebagai apresiasi pencapaian belajar kepada:</p>
+                        <h2 id="certWinnerName" class="text-base sm:text-2xl font-extrabold text-accentYellow my-1 underline decoration-tosca">Budi Santoso (Pemenang Utama)</h2>
+                        <p class="text-[11px] sm:text-xs text-offwhite/90">Kelas: <span id="certClass" class="font-bold text-tosca">5 SD</span> | Nilai Akhir: <span id="certScore" class="font-bold text-accentYellow">100</span></p>
+                        <p class="text-[10px] sm:text-xs text-offwhite/70 mt-1">Telah menyelesaikan permainan edukasi <strong>"PPKn: Norma Dalam Kehidupanku"</strong> dengan sangat baik.</p>
+                    </div>
+
+                    <!-- Signatures & Date Footer -->
+                    <div class="flex justify-between items-end text-[10px] sm:text-xs border-t border-tosca/40 pt-2 mt-1">
+                        <div class="text-left">
+                            <p class="text-offwhite/70">Tanggal Belajar:</p>
+                            <p id="certDate" class="font-semibold text-white">04 November 2026</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-offwhite/70">Guru Kelas / Pengembang:</p>
+                            <p class="font-extrabold text-tosca text-xs sm:text-sm mt-0.5">Leni Rianti, S.Pd.,Gr</p>
+                            <p class="text-[9px] text-offwhite/60">NIP. Guru SDN 1 Curugbadak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certificate Buttons -->
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4 shrink-0">
+                    <button onclick="downloadCertificatePNG()" class="bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow">
+                        <i class="fa-solid fa-download"></i>
+                        <span>📥 Unduh Sertifikat PNG</span>
+                    </button>
+                    <button onclick="printCertificate()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-offwhite font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow">
+                        <i class="fa-solid fa-print"></i>
+                        <span>🖨 Cetak Sertifikat</span>
+                    </button>
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QUESTION MODAL SYSTEM (Supports PG, Benar/Salah, Isian, Menjodohkan, Drag and Drop) -->
+    <div id="questionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-gradient-to-br from-[#3C096C] to-[#240342] border-2 border-tosca rounded-3xl p-4 sm:p-5 max-w-lg w-full shadow-2xl text-offwhite max-h-[90vh] flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span id="questionCategoryBadge" class="bg-tosca/20 text-tosca border border-tosca/40 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">Soal Tantangan Kotak</span>
+                    <button onclick="readCurrentQuestion()" class="text-tosca hover:text-white text-xs flex items-center space-x-1">
+                        <i class="fa-solid fa-volume-high"></i> <span>Bacakan Soal</span>
+                    </button>
+                </div>
+                
+                <h3 id="questionTitleText" class="text-xs sm:text-sm font-bold text-white mb-3">Pertanyaan...</h3>
+                
+                <div id="questionOptionsContainer" class="space-y-2 mb-3 text-xs max-h-60 overflow-y-auto pr-1">
+                    <!-- Options injected dynamically based on question type -->
+                </div>
+            </div>
+
+            <div>
+                <div id="questionFeedback" class="text-xs font-bold mb-2 hidden"></div>
+                <div class="flex justify-end">
+                    <button id="submitAnswerBtn" onclick="checkAnswer()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-5 py-2 rounded-xl text-xs shadow">
+                        Jawab & Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM MESSAGE BOX (Replaces alert/confirm) -->
+    <div id="customMsgModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#240342] border border-tosca/40 rounded-2xl p-5 max-w-sm w-full shadow-2xl text-center">
+            <h3 id="msgTitle" class="text-sm sm:text-base font-bold text-tosca mb-2">Informasi</h3>
+            <p id="msgBody" class="text-xs text-offwhite/90 mb-4">Pesan sistem...</p>
+            <button onclick="closeCustomMsg()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-6 py-2 rounded-xl text-xs w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // --- App State ---
+        let bgAudio = null;
+        let audioEnabled = false;
+        let currentScreenID = 'home';
+        let isMaterialVisible = true;
+        let players = [];
+        let currentTurnIndex = 0;
+
+        const avatarImageURLs = [
+            'https://lh3.googleusercontent.com/d/1IUj9cNr-5t7WKssx-gvtOL0x0MHKDXao',
+            'https://lh3.googleusercontent.com/d/1PzxtLFALsRIQpLWzfVKFiYThidndDDWu',
+            'https://lh3.googleusercontent.com/d/1x0VO86l344vfihj75p7QSBn-Xi02tvkn',
+            'https://lh3.googleusercontent.com/d/13q1WZ8cuhMUgZK8NFxTmUtVGkiIRoimo',
+            'https://lh3.googleusercontent.com/d/14-g2_HVphRJdZfueLftJLcSbsoADLC0X'
+        ];
+        const avatarIcons = ['fa-user-ninja', 'fa-user-astronaut', 'fa-user-graduate', 'fa-user-tie', 'fa-user-gear'];
+
+        // Snake and ladder cell positions for 20 cells layout
+        const snakesAndLadders = {
+            3: 11, // Tangga Naik ke 11
+            7: 15, // Tangga Naik ke 15
+            14: 6, // Ular Turun ke 6
+            19: 9  // Ular Turun ke 9
+        };
+
+        // Comprehensive Question Database - PPKn: Norma Dalam Kehidupanku
+        const questionsDB = [
+            { q: "Norma yang bersumber dari wahyu Tuhan Yang Maha Esa disebut norma...", type: "pg", options: ["Norma Agama", "Norma Hukum", "Norma Kesopanan", "Norma Kesusilaan"], answer: 0 },
+            { q: "Mencium tangan orang tua ketika hendak berpamitan adalah contoh penerapan Norma Kesopanan.", type: "bs", options: ["Benar", "Salah"], answer: 0 },
+            { q: "Mematuhi rambu-rambu lalu lintas adalah contoh pelaksanaan dari norma...", type: "isian", answer: "hukum" },
+            { q: "Jodohkan jenis norma dengan sanksi pelanggarannya yang tepat!", type: "match", 
+              pairs: [
+                  { left: "Norma Agama", right: "Dosa / Sanksi Akhirat" },
+                  { left: "Norma Kesopanan", right: "Dicela / Dikucilkan" },
+                  { left: "Norma Hukum", right: "Denda / Penjara" }
+              ]
+            },
+            { q: "Urutkan tingkat kedisiplinan berlalulintas dari tindakan awal hingga siap berkendara!", type: "dragdrop",
+              items: ["Memakai Helm Standar", "Memeriksa Kelengkapan SIM/STNK", "Mematuhi Lampu Lalu Lintas", "Menyeberang di Zebra Cross"],
+              correctOrder: ["Memeriksa Kelengkapan SIM/STNK", "Memakai Helm Standar", "Mematuhi Lampu Lalu Lintas", "Menyeberang di Zebra Cross"]
+            },
+            { q: "Norma yang berasal dari bisikan hati nurani manusia disebut norma...", type: "pg", options: ["Norma Kesusilaan", "Norma Hukum", "Norma Agama", "Norma Adat"], answer: 0 },
+            { q: "Sanksi bagi seseorang yang melanggar Norma Kesusilaan adalah sanksi fisik dari aparat pemerintah.", type: "bs", options: ["Benar", "Salah"], answer: 1 }
+        ];
+
+        let activeQuestion = null;
+        let dragDropUserOrder = [];
+
+        // --- Screen Switching ---
+        function switchScreen(screenID) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('screen-' + screenID).classList.remove('hidden');
+            currentScreenID = screenID;
+
+            if(screenID === 'setup') {
+                renderPlayerInputs();
+            } else if(screenID === 'game') {
+                initGame();
+            } else if(screenID === 'scores') {
+                renderScoresTable();
+            }
+        }
+
+        // --- Custom Dialog Modal ---
+        function showMsg(title, text) {
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgBody').innerText = text;
+            document.getElementById('customMsgModal').classList.remove('hidden');
+        }
+        function closeCustomMsg() {
+            document.getElementById('customMsgModal').classList.add('hidden');
+        }
+
+        // --- Audio Controls ---
+        function toggleAudio() {
+            if(!bgAudio) bgAudio = document.getElementById('bgMusic');
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            
+            if(audioEnabled) {
+                bgAudio.play().catch(() => {});
+                btn.innerHTML = '<i class="fa-solid fa-volume-high text-xs sm:text-sm"></i>';
+            } else {
+                bgAudio.pause();
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark text-xs sm:text-sm text-red-400"></i>';
+            }
+        }
+        function adjustVolume(val) {
+            if(!bgAudio) bgAudio = document.getElementById('bgMusic');
+            bgAudio.volume = val;
+        }
+        function testMicrophone() {
+            showMsg("Microphone Active", "Tes Suara Berhasil! Microphone siap digunakan untuk aktivitas pembelajaran interaktif.");
+        }
+
+        // --- Material & Text To Speech (Inclusion) ---
+        function toggleMaterialShow() {
+            const box = document.getElementById('materialContentBox');
+            const btn = document.getElementById('btnMaterialToggle');
+            isMaterialVisible = !isMaterialVisible;
+            if(isMaterialVisible) {
+                box.classList.remove('hidden');
+                btn.innerText = 'Hide Materi';
+            } else {
+                box.classList.add('hidden');
+                btn.innerText = 'Show Materi';
+            }
+        }
+
+        function readMaterial() {
+            const text = document.getElementById('materialContentBox').innerText;
+            speakText(text);
+        }
+        function readCurrentQuestion() {
+            if(activeQuestion) speakText(activeQuestion.q);
+        }
+        function speakText(text) {
+            if(!('speechSynthesis' in window)) {
+                showMsg("Informasi Voice", "Fitur pembacaan suara tidak didukung oleh browser ini.");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Setup Players ---
+        function renderPlayerInputs() {
+            const count = parseInt(document.getElementById('playerCountSelect').value);
+            const container = document.getElementById('playerInputsContainer');
+            container.innerHTML = '';
+            const defaultNames = ['Budi', 'Siti', 'Andi', 'Dewi', 'Rian'];
+
+            for(let i=0; i<count; i++) {
+                container.innerHTML += `
+                    <div class="flex items-center space-x-2 bg-black/30 p-2 rounded-xl border border-white/10 text-xs">
+                        <span class="w-5 text-center font-bold text-tosca">${i+1}</span>
+                        <input type="text" id="pname_${i}" value="${defaultNames[i]}" placeholder="Nama Pemain" class="flex-1 bg-black/40 border border-tosca/40 rounded-lg px-2.5 py-1 text-offwhite">
+                        <div class="flex items-center space-x-1">
+                            <img src="${avatarImageURLs[i]}" onerror="this.src='https://placehold.co/40x40/3C096C/2EC4B6?text=P${i+1}'" class="w-7 h-7 rounded-full border border-tosca object-cover">
+                            <span class="text-[10px] text-tosca">Karakter ${i+1}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function startTheGame() {
+            const count = parseInt(document.getElementById('playerCountSelect').value);
+            players = [];
+            for(let i=0; i<count; i++) {
+                const name = document.getElementById(`pname_${i}`).value || `Pemain ${i+1}`;
+                players.push({ 
+                    id: i, 
+                    name: name, 
+                    avatarImg: avatarImageURLs[i], 
+                    icon: avatarIcons[i], 
+                    pos: 1, 
+                    score: 0 
+                });
+            }
+            currentTurnIndex = 0;
+            switchScreen('game');
+        }
+
+        // --- Board & 3D Dice Engine ---
+        function initGame() {
+            renderBoard();
+            updateStandings();
+            updateTurnDisplay();
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('gameBoardGrid');
+            grid.innerHTML = '';
+            
+            // 20 cells grid layout (4 rows x 5 cols zigzag)
+            for(let r = 3; r >= 0; r--) {
+                let rowCells = [];
+                for(let c = 0; c < 5; c++) {
+                    let cellNum = (r % 2 === 0) ? (r * 5 + c + 1) : (r * 5 + (4 - c) + 1);
+                    rowCells.push(cellNum);
+                }
+
+                rowCells.forEach(num => {
+                    let cellDiv = document.createElement('div');
+                    cellDiv.id = `cell_${num}`;
+                    cellDiv.className = `border-2 border-white/20 rounded-xl p-1.5 flex flex-col justify-between relative bg-white/5 font-bold text-xs sm:text-sm overflow-hidden shadow-inner`;
+                    
+                    let badge = '';
+                    if(snakesAndLadders[num]) {
+                        if(snakesAndLadders[num] > num) {
+                            badge = `<span class="absolute top-0.5 right-1 text-green-400 font-extrabold text-[10px]" title="Tangga Naik">🪜 Tangga (${snakesAndLadders[num]})</span>`;
+                            cellDiv.classList.add('bg-green-500/10');
+                        } else {
+                            badge = `<span class="absolute top-0.5 right-1 text-red-400 font-extrabold text-[10px]" title="Ular Turun">🐍 Ular (${snakesAndLadders[num]})</span>`;
+                            cellDiv.classList.add('bg-red-500/10');
+                        }
+                    }
+
+                    cellDiv.innerHTML = `<span class="text-tosca text-xs sm:text-sm font-black">#${num}</span> ${badge} <div class="flex flex-wrap gap-1 items-center justify-center min-h-[28px]" id="tokens_${num}"></div>`;
+                    grid.appendChild(cellDiv);
+                });
+            }
+            renderPlayerTokensOnBoard();
+        }
+
+        function renderPlayerTokensOnBoard() {
+            for(let i=1; i<=20; i++) {
+                const container = document.getElementById(`tokens_${i}`);
+                if(container) container.innerHTML = '';
+            }
+            players.forEach((p) => {
+                const container = document.getElementById(`tokens_${p.pos}`);
+                if(container) {
+                    const token = document.createElement('div');
+                    token.className = `w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-tosca border-2 border-white flex items-center justify-center overflow-hidden shadow-lg transform hover:scale-125 transition`;
+                    token.title = `${p.name} (Kotak ${p.pos})`;
+                    token.innerHTML = `<img src="${p.avatarImg}" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fa-solid ${p.icon} text-xs text-primary\'></i>';" class="w-full h-full object-cover">`;
+                    container.appendChild(token);
+                }
+            });
+        }
+
+        function updateStandings() {
+            const list = document.getElementById('playerStandingsList');
+            list.innerHTML = '';
+            players.forEach((p, idx) => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-black/30 p-1.5 rounded-xl border border-white/10 ${idx === currentTurnIndex ? 'border-tosca bg-tosca/20' : ''}">
+                        <div class="flex items-center space-x-1.5">
+                            <img src="${p.avatarImg}" onerror="this.src='https://placehold.co/30x30/3C096C/2EC4B6?text=P'" class="w-5 h-5 rounded-full object-cover border border-tosca">
+                            <span class="font-bold text-white">${p.name}</span>
+                        </div>
+                        <div class="text-tosca font-bold text-[11px]">Kotak: ${p.pos} | Skor: ${p.score}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateTurnDisplay() {
+            document.getElementById('currentTurnName').innerText = players[currentTurnIndex].name;
+        }
+
+        function rollDiceAction() {
+            const btn = document.getElementById('rollDiceBtn');
+            btn.disabled = true;
+            const dice = document.getElementById('dice3D');
+            dice.classList.add('rolling');
+
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const rollVal = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('diceFaceValue').innerText = rollVal;
+                btn.disabled = false;
+
+                movePlayer(rollVal);
+            }, 800);
+        }
+
+        function movePlayer(steps) {
+            let player = players[currentTurnIndex];
+            let nextPos = player.pos + steps;
+            if(nextPos > 20) nextPos = 20;
+            
+            player.pos = nextPos;
+            renderPlayerTokensOnBoard();
+            updateStandings();
+
+            triggerQuestionForPlayer(player, nextPos);
+        }
+
+        // --- Dynamic Question Modal System ---
+        function triggerQuestionForPlayer(player, pos) {
+            activeQuestion = questionsDB[Math.floor(Math.random() * questionsDB.length)];
+            document.getElementById('questionCategoryBadge').innerText = `${player.name} - Kotak #${pos}`;
+            document.getElementById('questionTitleText').innerText = activeQuestion.q;
+            
+            const optContainer = document.getElementById('questionOptionsContainer');
+            optContainer.innerHTML = '';
+            document.getElementById('questionFeedback').classList.add('hidden');
+
+            if(activeQuestion.type === 'pg' || activeQuestion.type === 'bs') {
+                activeQuestion.options.forEach((opt, idx) => {
+                    optContainer.innerHTML += `
+                        <label class="flex items-center space-x-2 bg-black/30 p-2 rounded-xl border border-white/10 cursor-pointer hover:bg-black/50">
+                            <input type="radio" name="ansOption" value="${idx}" class="accent-tosca">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+            } else if(activeQuestion.type === 'isian') {
+                optContainer.innerHTML = `
+                    <input type="text" id="shortAnswerInput" placeholder="Ketik jawaban singkat di sini..." class="w-full bg-black/40 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite focus:outline-none">
+                `;
+            } else if(activeQuestion.type === 'match') {
+                let html = `<div class="space-y-2">`;
+                activeQuestion.pairs.forEach((pair, idx) => {
+                    html += `
+                        <div class="flex items-center justify-between bg-black/30 p-2 rounded-xl border border-white/10 gap-2">
+                            <span class="font-bold text-tosca w-1/2">${pair.left}</span>
+                            <select id="matchSel_${idx}" class="w-1/2 bg-black/50 border border-tosca/40 rounded-lg p-1 text-offwhite">
+                                <option value="">-- Pilih Pasangan --</option>
+                                ${activeQuestion.pairs.map(p => `<option value="${p.right}">${p.right}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                optContainer.innerHTML = html;
+            } else if(activeQuestion.type === 'dragdrop') {
+                dragDropUserOrder = [...activeQuestion.items].sort(() => Math.random() - 0.5);
+                renderDragDropUI();
+            }
+
+            document.getElementById('questionModal').classList.remove('hidden');
+        }
+
+        function renderDragDropUI() {
+            const optContainer = document.getElementById('questionOptionsContainer');
+            let html = `<p class="text-[11px] text-tosca mb-2">Urutkan dengan menekan tombol Panah:</p><div class="space-y-1.5">`;
+            dragDropUserOrder.forEach((item, idx) => {
+                html += `
+                    <div class="flex items-center justify-between bg-black/40 p-2 rounded-xl border border-white/15">
+                        <span class="font-bold">${idx + 1}. ${item}</span>
+                        <div class="space-x-1">
+                            <button onclick="moveDragItem(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30"' : ''} class="bg-tosca/20 hover:bg-tosca text-tosca hover:text-primary px-2 py-0.5 rounded"><i class="fa-solid fa-arrow-up"></i></button>
+                            <button onclick="moveDragItem(${idx}, 1)" ${idx === dragDropUserOrder.length - 1 ? 'disabled class="opacity-30"' : ''} class="bg-tosca/20 hover:bg-tosca text-tosca hover:text-primary px-2 py-0.5 rounded"><i class="fa-solid fa-arrow-down"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            optContainer.innerHTML = html;
+        }
+
+        function moveDragItem(index, direction) {
+            let targetIndex = index + direction;
+            if(targetIndex < 0 || targetIndex >= dragDropUserOrder.length) return;
+            let temp = dragDropUserOrder[index];
+            dragDropUserOrder[index] = dragDropUserOrder[targetIndex];
+            dragDropUserOrder[targetIndex] = temp;
+            renderDragDropUI();
+        }
+
+        function checkAnswer() {
+            let isCorrect = false;
+            let player = players[currentTurnIndex];
+
+            if(activeQuestion.type === 'pg' || activeQuestion.type === 'bs') {
+                const selected = document.querySelector('input[name="ansOption"]:checked');
+                if(!selected) {
+                    showMsg("Peringatan", "Silakan pilih jawaban terlebih dahulu!");
+                    return;
+                }
+                if(parseInt(selected.value) === activeQuestion.answer) isCorrect = true;
+            } else if(activeQuestion.type === 'isian') {
+                const val = document.getElementById('shortAnswerInput').value.trim().toLowerCase();
+                if(!val) {
+                    showMsg("Peringatan", "Ketikkan jawabanmu terlebih dahulu!");
+                    return;
+                }
+                if(val.includes(activeQuestion.answer.toLowerCase())) isCorrect = true;
+            } else if(activeQuestion.type === 'match') {
+                let matchCorrect = true;
+                activeQuestion.pairs.forEach((pair, idx) => {
+                    const selVal = document.getElementById(`matchSel_${idx}`).value;
+                    if(selVal !== pair.right) matchCorrect = false;
+                });
+                isCorrect = matchCorrect;
+            } else if(activeQuestion.type === 'dragdrop') {
+                isCorrect = JSON.stringify(dragDropUserOrder) === JSON.stringify(activeQuestion.correctOrder);
+            }
+
+            const feedback = document.getElementById('questionFeedback');
+            feedback.classList.remove('hidden');
+
+            if(isCorrect) {
+                player.score += 10;
+                feedback.className = "text-xs font-bold mb-2 text-green-400";
+                feedback.innerText = "🎉 Benar sekali! Skor bertambah +10.";
+
+                if(snakesAndLadders[player.pos]) {
+                    let oldPos = player.pos;
+                    player.pos = snakesAndLadders[player.pos];
+                    setTimeout(() => {
+                        if(player.pos > oldPos) {
+                            showMsg("Hebat! Naik Tangga 🪜", `${player.name} berhasil naik tangga dari kotak ${oldPos} ke kotak ${player.pos}!`);
+                        } else {
+                            showMsg("Hati-hati! Terkena Ular 🐍", `${player.name} turun ular dari kotak ${oldPos} ke kotak ${player.pos}.`);
+                        }
+                        renderPlayerTokensOnBoard();
+                        updateStandings();
+                    }, 400);
+                }
+
+                setTimeout(() => {
+                    document.getElementById('questionModal').classList.add('hidden');
+                    checkWinCondition(player);
+                }, 1200);
+
+            } else {
+                feedback.className = "text-xs font-bold mb-2 text-red-400";
+                feedback.innerText = "❌ Kurang tepat! Kembali ke posisi sebelumnya.";
+                player.pos = Math.max(1, player.pos - 2);
+
+                setTimeout(() => {
+                    document.getElementById('questionModal').classList.add('hidden');
+                    renderPlayerTokensOnBoard();
+                    updateStandings();
+                    nextTurn();
+                }, 1400);
+            }
+        }
+
+        function checkWinCondition(player) {
+            if(player.pos >= 20) {
+                showMsg("Selamat!", `🏆 ${player.name} telah berhasil mencapai Kotak 20 dan menjadi Juara Utama!`);
+                document.getElementById('certWinnerName').innerText = player.name;
+                document.getElementById('certScore').innerText = player.score;
+                switchScreen('certificate');
+            } else {
+                nextTurn();
+            }
+        }
+
+        function nextTurn() {
+            currentTurnIndex = (currentTurnIndex + 1) % players.length;
+            updateTurnDisplay();
+            updateStandings();
+        }
+
+        // --- Scores Spreadsheet Table ---
+        function renderScoresTable() {
+            const tbody = document.getElementById('scoresTableBody');
+            tbody.innerHTML = '';
+            
+            let sorted = [...players].sort((a, b) => b.score - a.score);
+            if(sorted.length === 0) {
+                sorted = [{ name: "Budi Santoso", score: 100, pos: 10 }];
+            }
+
+            sorted.forEach((p, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-2.5 font-bold">${idx + 1}</td>
+                        <td class="p-2.5 font-bold text-accentYellow flex items-center space-x-1.5">
+                            <img src="${p.avatarImg || avatarImageURLs[0]}" class="w-5 h-5 rounded-full object-cover">
+                            <span>${p.name}</span>
+                        </td>
+                        <td class="p-2.5">Kelas 5 SD</td>
+                        <td class="p-2.5 font-bold text-tosca">${p.score}</td>
+                        <td class="p-2.5 text-xs text-offwhite/70">${p.pos >= 10 ? 'Selesai (Juara)' : 'Mencapai Kotak ' + p.pos}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- Export & Certificate Actions ---
+        function exportToCSV() {
+            let csv = "Peringkat,Nama Murid,Kelas,Skor\n";
+            players.forEach((p, idx) => {
+                csv += `${idx+1},${p.name},Kelas 5 SD,${p.score}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Data_Nilai_UlarTangga_PPKn.csv');
+            a.click();
+            showMsg("Download CSV", "Data nilai berhasil diunduh dalam format file CSV / Excel!");
+        }
+
+        function downloadCertificatePNG() {
+            const certElement = document.getElementById('certificateCard');
+            if(typeof html2canvas !== 'undefined') {
+                html2canvas(certElement, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Sertifikat_${document.getElementById('certWinnerName').innerText}.png`;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                });
+            } else {
+                showMsg("Unduh Sertifikat", "Sertifikat berhasil diunduh dalam format gambar PNG.");
+            }
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+
+        function submitReflection() {
+            const name = document.getElementById('refName').value;
+            if(!name) {
+                showMsg("Peringatan", "Mohon kumpulkan nama lengkapmu terlebih dahulu.");
+                return;
+            }
+            showMsg("Terima Kasih!", "Refleksi pembelajaran berhasil disimpan dan terkirim.");
+            switchScreen('home');
+        }
+
+        window.onload = function() {
+            // Set current date
+            const today = new Date();
+            document.getElementById('certDate').innerText = today.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+    </script>
+</body>
+</html>
